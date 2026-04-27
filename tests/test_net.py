@@ -64,6 +64,8 @@ def test_pick_local_port_skips_blocked_ports() -> None:
     with patch("shellcraft.net.is_port_free", return_value=True):
         port = pick_local_port(preferred=9000, blocked={9000})
     assert port != 9000
+    assert port not in {9000}
+    assert 1024 <= port <= 65535
 
 
 def test_pick_local_port_returns_preferred_not_in_blocked() -> None:
