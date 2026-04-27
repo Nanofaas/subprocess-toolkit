@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import os
 from pathlib import Path
 import subprocess
 from threading import Thread
-from typing import Callable
+from typing import Callable, IO
 
 
 @dataclass(frozen=True)
@@ -21,7 +22,8 @@ class ShellExecutionResult:
 OutputListener = Callable[[str, str], None]
 
 
-class ShellBackend:
+class ShellBackend(ABC):
+    @abstractmethod
     def run(
         self,
         command: list[str],
@@ -30,7 +32,7 @@ class ShellBackend:
         env: dict[str, str] | None = None,
         dry_run: bool = False,
     ) -> ShellExecutionResult:
-        raise NotImplementedError
+        ...
 
 
 class SubprocessShell(ShellBackend):
@@ -88,7 +90,7 @@ class SubprocessShell(ShellBackend):
         stdout_chunks: list[str] = []
         stderr_chunks: list[str] = []
 
-        def _pump(pipe, stream: str, chunks: list[str]) -> None:  # noqa: ANN001
+        def _pump(pipe: IO[str], stream: str, chunks: list[str]) -> None:
             try:
                 while True:
                     line = pipe.readline()
@@ -103,9 +105,9 @@ class SubprocessShell(ShellBackend):
         stderr_thread = Thread(target=_pump, args=(process.stderr, "stderr", stderr_chunks))
         stdout_thread.start()
         stderr_thread.start()
-        return_code = process.wait()
         stdout_thread.join()
         stderr_thread.join()
+        return_code = process.wait()
 
         return ShellExecutionResult(
             command=command,
