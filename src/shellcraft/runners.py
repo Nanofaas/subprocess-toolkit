@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 from shellcraft.backend import ShellBackend, ShellExecutionResult, SubprocessShell
 
@@ -155,33 +153,8 @@ class KubectlOps:
             dry_run=dry_run,
         )
 
-    def exec(self, pod: str, command: str, *, dry_run: bool = False) -> ShellExecutionResult:
+    def exec(self, pod: str, command: str, *, shell: str = "bash", dry_run: bool = False) -> ShellExecutionResult:
         return self.runner.run(
-            [*self._base(), "exec", pod, "--", "bash", "-lc", command],
+            [*self._base(), "exec", pod, "--", shell, "-lc", command],
             dry_run=dry_run,
         )
-
-
-def read_json_field(path: Path, field: str) -> Any:
-    """Read a dot-separated field path from a JSON file."""
-    data: Any = json.loads(Path(path).read_text(encoding="utf-8"))
-    for part in field.split("."):
-        if part == "":
-            continue
-        if isinstance(data, list):
-            data = data[int(part)]
-        else:
-            data = data[part]
-    return data
-
-
-def write_json_file(path: Path, data: dict[str, Any]) -> None:
-    """Write a dictionary as a pretty-printed JSON file."""
-    Path(path).write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
-
-
-def wrap_payload(payload_path: Path, destination: Path) -> None:
-    """Wrap a raw payload file in {"input": ...} for invocation."""
-    with payload_path.open(encoding="utf-8") as handle:
-        payload = json.load(handle)
-    destination.write_text(json.dumps({"input": payload}, separators=(",", ":")), encoding="utf-8")
