@@ -1,0 +1,9 @@
+pyproject.toml
+src/shellcraft/__init__.py
+src/shellcraft/backend.py
+src/shellcraft/net.py
+src/shellcraft/runners.py
+src/shellcraft.egg-info/PKG-INFO
+src/shellcraft.egg-info/SOURCES.txt
+src/shellcraft.egg-info/dependency_links.txt
+src/shellcraft.egg-info/top_level.txt
