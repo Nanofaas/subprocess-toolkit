@@ -1,5 +1,0 @@
-Metadata-Version: 2.4
-Name: shellcraft
-Version: 0.1.0
-Summary: Generic subprocess orchestration toolkit for Python DevOps tooling
-Requires-Python: >=3.11

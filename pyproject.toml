@@ -2,11 +2,16 @@
 name = "shellcraft"
 version = "0.1.0"
 description = "Generic subprocess orchestration toolkit for Python DevOps tooling"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = []
 
 [build-system]
-requires = ["setuptools>=61.0"]
+# >=77 is required for the PEP 639 `license` / `license-files` fields above;
+# older setuptools rejects the SPDX string form.
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -18,4 +23,139 @@ where = ["src"]
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    # Pinned exactly to match the ruff-pre-commit revision in
+    # .pre-commit-config.yaml. A newer ruff in either place makes the hook and a
+    # local `ruff check` disagree about what a violation is. Bump both together.
+    "ruff==0.16.6",
+    "mypy>=1.13",
+    "bandit>=1.8",
+    "pre-commit>=4.0",
+]
+
+# =============================================================================
+# Ruff - linting + formatting
+# =============================================================================
+#   uv run ruff check .          # lint
+#   uv run ruff check --fix .    # lint + apply safe fixes
+#   uv run ruff format .         # format
+#
+# This project has no legacy to carry, so the rule set here is strict. The
+# library is a thin, typed wrapper around subprocess and container/kubectl
+# invocations with a deliberately curated public API (see shellcraft.__all__),
+# and it is small enough that "strict now" costs less than "ratchet later".
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+extend-exclude = ["src/shellcraft.egg-info"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # Pyflakes
+    "I",     # isort
+    "N",     # pep8-naming
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+    "TID",   # flake8-tidy-imports
+    "RUF",   # Ruff-specific rules
+    "PERF",  # Perflint
+    "PT",    # flake8-pytest-style
+    "RET",   # flake8-return
+    "PTH",   # flake8-use-pathlib
+    "ARG",   # unused arguments (the suite already suppresses one by design)
+    "D",     # pydocstyle - this is a library with a public API
+]
+ignore = [
+    # Mutually exclusive summary conventions. Summary on the first line (D212)
+    # is the chosen convention, so its counterpart D213 is off; D203 pairs with
+    # D211 the same way.
+    "D203",
+    "D213",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test functions are documented by their name; requiring a docstring on every
+# one of them is noise, not documentation. Style rules (D2xx/D4xx) still apply.
+"tests/**" = ["D100", "D101", "D102", "D103", "D104"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["shellcraft"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+# =============================================================================
+# mypy - strict
+# =============================================================================
+# Already clean at --strict, so it is enforced at --strict rather than a
+# weakened profile. The library's whole value proposition is typed subprocess
+# orchestration, which is exactly what static typing is meant to protect.
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+warn_unused_configs = true
+files = ["src/shellcraft", "tests"]
+
+# =============================================================================
+# pytest
+# =============================================================================
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra --strict-markers --strict-config"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+
+# =============================================================================
+# Coverage
+# =============================================================================
+
+[tool.coverage.run]
+branch = true
+source = ["shellcraft"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+# Measured at 79% when this was set. The gap is concentrated in
+# runners.py (61%): the container/kubectl command builders are mostly
+# unexercised. shellcraft.RecordingShell exists to record argv and was built for
+# exactly that kind of test, so closing it is cheap. Raise this as the suite
+# grows; never lower it to make a build pass.
+fail_under = 75
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]
+
+# =============================================================================
+# Bandit - security static analysis
+# =============================================================================
+# This library exists to shell out to docker/podman/kubectl, so subprocess is
+# its subject matter, not a smell. SubprocessShell builds command lists and
+# never passes shell=True, so B602 stays enabled: a future shell=True - the
+# actual injection vector - must fail the build.
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = [
+    # B404 (import subprocess), B603 (subprocess call), B607 (partial path):
+    # unavoidable for a subprocess orchestration toolkit that has to call
+    # whatever container runtime the caller configures.
+    "B404",
+    "B603",
+    "B607",
 ]

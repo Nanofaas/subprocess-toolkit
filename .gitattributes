@@ -1,0 +1,28 @@
+# Normalize line endings. shellcraft builds commands that run on Linux targets,
+# so a CRLF leaking in from a Windows editor breaks things in ways that are hard
+# to spot in review.
+* text=auto eol=lf
+
+*.py    text diff=python
+*.toml  text
+*.yml   text
+*.yaml  text
+*.json  text
+*.md    text diff=markdown
+*.cfg   text
+*.ini   text
+
+# Binary assets: never normalize, never try to diff.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.whl   binary
+*.gz    binary
+*.zip   binary
+
+# Generated at runtime.
+.coverage       linguist-generated=true
+coverage.xml    linguist-generated=true
+uv.lock         linguist-generated=true -diff

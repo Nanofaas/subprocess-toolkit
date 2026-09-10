@@ -1,0 +1,30 @@
+# Dependency updates.
+#
+# The runtime dependency list is empty by design - shellcraft is stdlib-only and
+# exists to wrap tools that are already installed - but the dev toolchain
+# (ruff, mypy, bandit, pre-commit) and the CI actions still need to move.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # ruff is pinned exactly in pyproject.toml and mirrored by the
+      # ruff-pre-commit revision, so a bump has to be reviewed together with
+      # .pre-commit-config.yaml rather than merged on its own.
+      python-dev:
+        patterns:
+          - "ruff"
+          - "mypy"
+          - "pytest*"
+          - "bandit"
+          - "pre-commit"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
