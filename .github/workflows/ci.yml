@@ -25,7 +25,7 @@ jobs:
     name: pre-commit (ruff, basedpyright, bandit)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -62,7 +62,7 @@ jobs:
         # 3.11 is the declared floor (requires-python >=3.11).
         python-version: ["3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
