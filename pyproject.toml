@@ -80,8 +80,9 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 # Test functions are documented by their name; requiring a docstring on every
-# one of them is noise, not documentation. Style rules (D2xx/D4xx) still apply.
-"tests/**" = ["D100", "D101", "D102", "D103", "D104"]
+# one of them is noise, not documentation. The whole missing-docstring family is
+# therefore off for the test tree. Style rules (D2xx/D4xx) still apply.
+"tests/**" = ["D100", "D101", "D102", "D103", "D104", "D105", "D107"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["shellcraft"]
@@ -127,12 +128,12 @@ source = ["shellcraft"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
-# Measured at 79% when this was set. The gap is concentrated in
-# runners.py (61%): the container/kubectl command builders are mostly
-# unexercised. shellcraft.RecordingShell exists to record argv and was built for
-# exactly that kind of test, so closing it is cheap. Raise this as the suite
-# grows; never lower it to make a build pass.
-fail_under = 75
+# Measured at 99.6% when this was set: every module is at 100% except one
+# partial branch in backend.py. The gate sits slightly lower because CI runs a
+# 3.11/3.12/3.13 matrix and branch coverage moves a little between versions -
+# a gate that flakes is worse than one that lags. Raise it as coverage improves;
+# never lower it to make a build pass.
+fail_under = 95
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
