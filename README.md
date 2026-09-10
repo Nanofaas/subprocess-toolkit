@@ -133,7 +133,7 @@ Individual commands, if you want them:
 | --- | --- |
 | Lint | `uv run ruff check .` (add `--fix`) |
 | Format | `uv run ruff format .` |
-| Types | `uv run mypy` (strict) |
+| Types | `uv run basedpyright` |
 | Tests | `uv run pytest` |
 | Coverage | `uv run pytest --cov` |
 | Security | `uv run bandit -c pyproject.toml -r src` |

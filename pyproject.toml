@@ -28,7 +28,9 @@ dev = [
     # .pre-commit-config.yaml. A newer ruff in either place makes the hook and a
     # local `ruff check` disagree about what a violation is. Bump both together.
     "ruff==0.16.6",
-    "mypy>=1.13",
+    # basedpyright rather than mypy: it is the type checker the sibling
+    # projects use, and the goal is one stack across all of them.
+    "basedpyright>=1.39.3",
     "bandit>=1.8",
     "pre-commit>=4.0",
 ]
@@ -93,18 +95,30 @@ indent-style = "space"
 line-ending = "lf"
 
 # =============================================================================
-# mypy - strict
+# basedpyright - type checking
 # =============================================================================
-# Already clean at --strict, so it is enforced at --strict rather than a
-# weakened profile. The library's whole value proposition is typed subprocess
-# orchestration, which is exactly what static typing is meant to protect.
+# The shared choice across these projects. `standard` is the mode: it catches
+# real type errors without the opinionated extras that `recommended` turns on
+# (reportAny, reportUnusedCallResult and friends), which fire mostly on the
+# untyped third-party surface this library is a thin wrapper over.
+#
+# reportMissingTypeStubs and reportPrivateUsage are off for the same reason the
+# sibling projects turn them off: tests reach into internals deliberately, and
+# several dependencies ship without stubs.
 
-[tool.mypy]
-python_version = "3.11"
-strict = true
-warn_unreachable = true
-warn_unused_configs = true
-files = ["src/shellcraft", "tests"]
+[tool.basedpyright]
+include = ["src/shellcraft", "tests"]
+typeCheckingMode = "standard"
+# reportImplicitOverride is deliberately NOT enabled here, although some sibling
+# projects enable it. It requires marking overrides with @override, and
+# typing.override only exists from Python 3.12 - on 3.11 that means importing
+# typing_extensions at runtime. shellcraft's selling point is being stdlib-only
+# with zero runtime dependencies, which is not worth trading for a lint rule.
+# Enable it if the floor ever moves to 3.12.
+reportMissingTypeStubs = false
+reportPrivateUsage = false
+venvPath = "."
+venv = ".venv"
 
 # =============================================================================
 # pytest

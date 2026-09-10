@@ -9,7 +9,7 @@
 #
 # No default_language_version is set on purpose. Pinning it to python3.11 made
 # pre-commit fail outright on a machine without that interpreter on PATH, and
-# the hooks that need the project's own interpreter (mypy) run through
+# the hooks that need the project's own interpreter (basedpyright) run through
 # `uv run --frozen` against the venv that .python-version pins anyway. The
 # ruff hook ships a prebuilt binary, so its env's interpreter does not affect
 # results.
@@ -32,15 +32,16 @@ repos:
   # ---------------------------------------------------------------------------
   # Type checking
   #
-  # Runs through the project environment rather than mirrors-mypy: mypy has to
-  # resolve `shellcraft` itself, and the config in pyproject.toml sets
-  # strict = true with an explicit file list.
+  # Runs through the project environment rather than a pre-commit mirror:
+  # basedpyright has to resolve `shellcraft` itself, and the settings in
+  # [tool.basedpyright] (include list, typeCheckingMode, venvPath) are what
+  # make the pass meaningful.
   # ---------------------------------------------------------------------------
   - repo: local
     hooks:
-      - id: mypy
-        name: mypy (strict)
-        entry: uv run --frozen mypy
+      - id: basedpyright
+        name: basedpyright
+        entry: uv run --frozen basedpyright
         language: system
         pass_filenames: false
         types: [python]

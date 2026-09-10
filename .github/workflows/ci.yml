@@ -22,14 +22,14 @@ jobs:
   # pyproject.toml; bump both together.
   # ---------------------------------------------------------------------------
   pre-commit:
-    name: pre-commit (ruff, mypy, bandit)
+    name: pre-commit (ruff, basedpyright, bandit)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          # ruff's target-version is py311 and mypy is configured for 3.11, so
+          # ruff's target-version is py311 and basedpyright is pointed at the 3.11 venv, so
           # linting on the declared floor is the honest choice.
           python-version: "3.11"
 
