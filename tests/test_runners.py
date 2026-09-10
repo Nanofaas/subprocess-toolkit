@@ -4,8 +4,13 @@ import json
 from pathlib import Path
 
 from shellcraft.backend import RecordingShell
-from shellcraft.fileutil import read_json_field, write_json_file, wrap_payload
-from shellcraft.runners import CommandRunner, ContainerRuntimeOps, KubectlOps, PlannedCommand
+from shellcraft.fileutil import read_json_field, wrap_payload, write_json_file
+from shellcraft.runners import (
+    CommandRunner,
+    ContainerRuntimeOps,
+    KubectlOps,
+    PlannedCommand,
+)
 
 
 def test_command_runner_delegates_to_shell() -> None:

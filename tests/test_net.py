@@ -9,7 +9,7 @@ from shellcraft.net import is_port_free, pick_local_port
 def test_is_port_free_returns_true_when_port_available() -> None:
     with patch("shellcraft.net.socket.socket") as ms:
         instance = MagicMock()
-        instance.__enter__ = lambda s: instance
+        instance.__enter__ = lambda _s: instance
         instance.__exit__ = MagicMock(return_value=False)
         instance.bind = MagicMock()
         ms.return_value = instance
@@ -20,7 +20,7 @@ def test_is_port_free_returns_true_when_port_available() -> None:
 def test_is_port_free_returns_false_when_port_in_use() -> None:
     with patch("shellcraft.net.socket.socket") as ms:
         instance = MagicMock()
-        instance.__enter__ = lambda s: instance
+        instance.__enter__ = lambda _s: instance
         instance.__exit__ = MagicMock(return_value=False)
         instance.bind = MagicMock(side_effect=OSError("address in use"))
         ms.return_value = instance
@@ -29,9 +29,9 @@ def test_is_port_free_returns_false_when_port_in_use() -> None:
 
 
 def test_is_port_free_returns_false_when_port_in_use_on_ipv6() -> None:
-    def _fake_socket(family, socktype):  # noqa: ARG001
+    def _fake_socket(family: int, socktype: int) -> MagicMock:  # noqa: ARG001
         instance = MagicMock()
-        instance.__enter__ = lambda s: instance
+        instance.__enter__ = lambda _s: instance
         instance.__exit__ = MagicMock(return_value=False)
         if family == socket.AF_INET:
             instance.bind = MagicMock()

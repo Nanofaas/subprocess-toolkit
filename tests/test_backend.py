@@ -37,9 +37,16 @@ def test_subprocess_shell_dry_run_returns_zero_without_executing() -> None:
     assert result.dry_run is True
 
 
-def test_subprocess_shell_dry_run_does_not_call_subprocess(monkeypatch) -> None:
-    calls = []
-    monkeypatch.setattr("subprocess.run", lambda *a, **kw: calls.append(a) or MagicMock(returncode=0))
+def test_subprocess_shell_dry_run_does_not_call_subprocess(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[object, ...]] = []
+
+    def _fake_run(*args: object, **_kwargs: object) -> MagicMock:
+        calls.append(args)
+        return MagicMock(returncode=0)
+
+    monkeypatch.setattr("subprocess.run", _fake_run)
     shell = SubprocessShell()
     shell.run(["echo", "hello"], dry_run=True)
     assert calls == []
@@ -75,9 +82,15 @@ def test_subprocess_shell_passes_cwd_to_subprocess(tmp_path: Path) -> None:
 
 def test_subprocess_shell_streams_output_to_listener() -> None:
     streamed: list[tuple[str, str]] = []
-    shell = SubprocessShell(output_listener=lambda stream, line: streamed.append((stream, line)))
+    shell = SubprocessShell(
+        output_listener=lambda stream, line: streamed.append((stream, line))
+    )
     result = shell.run(
-        [sys.executable, "-c", "import sys; print('hello'); print('warn', file=sys.stderr)"]
+        [
+            sys.executable,
+            "-c",
+            "import sys; print('hello'); print('warn', file=sys.stderr)",
+        ]
     )
     assert result.return_code == 0
     assert ("stdout", "hello") in streamed

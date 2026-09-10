@@ -1,4 +1,5 @@
 """Stdlib-only JSON and file utilities for shellcraft orchestration scripts."""
+
 from __future__ import annotations
 
 import json
@@ -9,6 +10,8 @@ from typing import Any
 def read_json_field(path: Path, field: str) -> Any:
     """Read a dot-separated field path from a JSON file.
 
+    Numeric segments index into lists, so "a.b.0" is valid.
+
     Example::
         read_json_field(Path("response.json"), "status")
         read_json_field(Path("data.json"), "a.b.c")
@@ -17,10 +20,7 @@ def read_json_field(path: Path, field: str) -> Any:
     for part in field.split("."):
         if part == "":
             continue
-        if isinstance(data, list):
-            data = data[int(part)]
-        else:
-            data = data[part]
+        data = data[int(part)] if isinstance(data, list) else data[part]
     return data
 
 
@@ -33,4 +33,6 @@ def wrap_payload(payload_path: Path, destination: Path) -> None:
     """Wrap a raw payload file in {"input": ...} for invocation."""
     with payload_path.open(encoding="utf-8") as handle:
         payload = json.load(handle)
-    destination.write_text(json.dumps({"input": payload}, separators=(",", ":")), encoding="utf-8")
+    destination.write_text(
+        json.dumps({"input": payload}, separators=(",", ":")), encoding="utf-8"
+    )

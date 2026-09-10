@@ -1,3 +1,10 @@
+"""Typed command builders for container runtimes and kubectl.
+
+Every operation returns a :class:`~shellcraft.backend.ShellExecutionResult` and
+accepts ``dry_run``, so a plan can be rendered and reviewed before anything is
+executed.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -21,6 +28,7 @@ class CommandRunner:
         env: dict[str, str] | None = None,
         cwd: Path | None = None,
     ) -> ShellExecutionResult:
+        """Run command through the backend, defaulting to repo_root as cwd."""
         return self.shell.run(
             command,
             cwd=cwd or self.repo_root,
@@ -31,11 +39,20 @@ class CommandRunner:
 
 @dataclass(frozen=True)
 class PlannedCommand:
+    """A command captured with the cwd and env it should run under.
+
+    Deferring execution this way lets a caller collect commands first and run
+    them later, against a different runner.
+    """
+
     command: list[str]
     cwd: Path
     env: dict[str, str] = field(default_factory=dict)
 
-    def run(self, runner: CommandRunner, *, dry_run: bool = False) -> ShellExecutionResult:
+    def run(
+        self, runner: CommandRunner, *, dry_run: bool = False
+    ) -> ShellExecutionResult:
+        """Execute the planned command using runner."""
         return runner.run(self.command, cwd=self.cwd, env=self.env, dry_run=dry_run)
 
 
@@ -55,6 +72,7 @@ class ContainerRuntimeOps:
         build_args: dict[str, str] | None = None,
         dry_run: bool = False,
     ) -> ShellExecutionResult:
+        """Build context and tag the resulting image."""
         command = [self.runtime, "build", "-t", tag]
         if dockerfile is not None:
             command.extend(["-f", str(dockerfile)])
@@ -63,7 +81,10 @@ class ContainerRuntimeOps:
         command.append(str(context))
         return self.runner.run(command, dry_run=dry_run)
 
-    def remove(self, *names: str, force: bool = True, dry_run: bool = False) -> ShellExecutionResult:
+    def remove(
+        self, *names: str, force: bool = True, dry_run: bool = False
+    ) -> ShellExecutionResult:
+        """Remove one or more containers by name."""
         command = [self.runtime, "rm"]
         if force:
             command.append("-f")
@@ -80,6 +101,11 @@ class ContainerRuntimeOps:
         env: dict[str, str] | None = None,
         dry_run: bool = False,
     ) -> ShellExecutionResult:
+        """Start a container from image.
+
+        ``ports`` maps host port to container port, and ``env`` is passed to the
+        container as ``-e`` assignments.
+        """
         command = [self.runtime, "run"]
         if detach:
             command.append("-d")
@@ -100,6 +126,7 @@ class ContainerRuntimeOps:
         format_str: str | None = None,
         dry_run: bool = False,
     ) -> ShellExecutionResult:
+        """List containers, optionally including stopped ones."""
         command = [self.runtime, "ps"]
         if all_containers:
             command.append("-a")
@@ -110,6 +137,7 @@ class ContainerRuntimeOps:
         return self.runner.run(command, dry_run=dry_run)
 
     def push(self, tag: str, *, dry_run: bool = False) -> ShellExecutionResult:
+        """Push a tagged image to its registry."""
         return self.runner.run([self.runtime, "push", tag], dry_run=dry_run)
 
 
@@ -130,7 +158,10 @@ class KubectlOps:
         return command
 
     def apply(self, manifest: Path, *, dry_run: bool = False) -> ShellExecutionResult:
-        return self.runner.run([*self._base(), "apply", "-f", str(manifest)], dry_run=dry_run)
+        """Apply a manifest file."""
+        return self.runner.run(
+            [*self._base(), "apply", "-f", str(manifest)], dry_run=dry_run
+        )
 
     def delete(
         self,
@@ -140,6 +171,7 @@ class KubectlOps:
         ignore_not_found: bool = True,
         dry_run: bool = False,
     ) -> ShellExecutionResult:
+        """Delete a named resource, tolerating a missing one by default."""
         command = [*self._base(), "delete", resource, name]
         if ignore_not_found:
             command.append("--ignore-not-found")
@@ -148,12 +180,22 @@ class KubectlOps:
     def rollout_restart(
         self, resource: str, name: str, *, dry_run: bool = False
     ) -> ShellExecutionResult:
+        """Restart a workload by triggering a rollout."""
         return self.runner.run(
             [*self._base(), "rollout", "restart", f"{resource}/{name}"],
             dry_run=dry_run,
         )
 
-    def exec(self, pod: str, command: str, *, shell: str = "bash", dry_run: bool = False) -> ShellExecutionResult:
+    def exec(
+        self, pod: str, command: str, *, shell: str = "bash", dry_run: bool = False
+    ) -> ShellExecutionResult:
+        """Run a shell command inside a pod.
+
+        The command string is interpreted by the shell inside the container,
+        which is what makes pipes and redirection usable here. It is not passed
+        through a shell on the local host: the argv list handed to the backend
+        stays a list.
+        """
         return self.runner.run(
             [*self._base(), "exec", pod, "--", shell, "-lc", command],
             dry_run=dry_run,

@@ -1,12 +1,19 @@
-from __future__ import annotations
+"""Stdlib-only socket utilities for port availability and free-port selection."""
 
-"""Stdlib-only socket utilities for checking port availability and selecting free local ports."""
+from __future__ import annotations
 
 import errno
 import socket
 
 
 def _can_bind(family: int, address: str, port: int) -> bool | None:
+    """Try to bind a socket and report whether the port is usable.
+
+    Returns True when the bind succeeded, False when the port is genuinely in
+    use, and None when the address family itself is unavailable on this host -
+    a distinction callers need so that a machine without IPv6 is not treated as
+    having every IPv6 port occupied.
+    """
     try:
         with socket.socket(family, socket.SOCK_STREAM) as sock:
             sock.bind((address, port))
@@ -18,27 +25,38 @@ def _can_bind(family: int, address: str, port: int) -> bool | None:
         }:
             return None
         message = str(exc).lower()
-        if family == socket.AF_INET6 and any(
-            marker in message
-            for marker in ("address family not supported", "protocol not supported", "invalid argument")
-        ):
+        markers = (
+            "address family not supported",
+            "protocol not supported",
+            "invalid argument",
+        )
+        if family == socket.AF_INET6 and any(m in message for m in markers):
             return None
         return False
     return True
 
 
 def is_port_free(port: int) -> bool:
-    """Return True if port can be bound on IPv4 loopback, and on IPv6 loopback if IPv6 is available."""
+    """Return True if port is bindable on loopback.
+
+    Checks IPv4 loopback, and IPv6 loopback when the host supports IPv6. A
+    missing IPv6 stack does not make the port look occupied.
+    """
     if _can_bind(socket.AF_INET, "127.0.0.1", port) is False:
         return False
     ipv6_available = _can_bind(socket.AF_INET6, "::1", port)
-    if ipv6_available is False:
-        return False
-    return True
+    return ipv6_available is not False
 
 
-def pick_local_port(preferred: int, blocked: set[int] | None = None, *, _max_retries: int = 16) -> int:
-    """Return preferred if free and not blocked, otherwise an OS-assigned port."""
+def pick_local_port(
+    preferred: int, blocked: set[int] | None = None, *, _max_retries: int = 16
+) -> int:
+    """Return preferred if free and not blocked, otherwise an OS-assigned port.
+
+    Raises:
+        RuntimeError: if no free port was found within the retry budget.
+
+    """
     blocked = blocked or set()
     if preferred not in blocked and is_port_free(preferred):
         return preferred
@@ -48,6 +66,8 @@ def pick_local_port(preferred: int, blocked: set[int] | None = None, *, _max_ret
             candidate = int(sock.getsockname()[1])
         if candidate not in blocked:
             return candidate
-    raise RuntimeError(
-        f"Could not find a free port outside {len(blocked)} blocked ports after {_max_retries} attempts"
+    message = (
+        f"Could not find a free port outside {len(blocked)} blocked ports "
+        f"after {_max_retries} attempts"
     )
+    raise RuntimeError(message)

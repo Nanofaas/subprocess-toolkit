@@ -1,3 +1,9 @@
+"""Shellcraft: typed subprocess orchestration for Python DevOps tooling.
+
+Public API. Everything exported here is stable; the submodules behind it are
+implementation detail.
+"""
+
 from shellcraft.backend import (
     OutputListener,
     RecordingShell,
