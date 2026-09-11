@@ -117,7 +117,7 @@ read-a-field / write-a-payload work that shows up around CLI tooling.
 ## Development
 
 ```bash
-uv sync --all-extras
+uv sync
 uv run pre-commit install
 ```
 
@@ -152,4 +152,4 @@ there, and it is `kubectl exec` semantics rather than a local `shell=True`.
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE).
+MIT License. See [LICENSE](LICENSE).
