@@ -1,4 +1,4 @@
-# Normalize line endings. shellcraft builds commands that run on Linux targets,
+# Normalize line endings. subprocess-toolkit builds commands that run on Linux targets,
 # so a CRLF leaking in from a Windows editor breaks things in ways that are hard
 # to spot in review.
 * text=auto eol=lf

@@ -1,6 +1,6 @@
 """Typed command builders for container runtimes and kubectl.
 
-Every operation returns a :class:`~shellcraft.backend.ShellExecutionResult` and
+Every operation returns a :class:`~subprocess_toolkit.backend.ShellExecutionResult` and
 accepts ``dry_run``, so a plan can be rendered and reviewed before anything is
 executed.
 """
@@ -10,7 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from shellcraft.backend import ShellBackend, ShellExecutionResult, SubprocessShell
+from subprocess_toolkit.backend import (
+    ShellBackend,
+    ShellExecutionResult,
+    SubprocessShell,
+)
 
 
 @dataclass

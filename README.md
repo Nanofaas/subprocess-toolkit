@@ -1,8 +1,8 @@
-# shellcraft
+# subprocess-toolkit
 
 Generic subprocess orchestration toolkit for Python DevOps tooling.
 
-`shellcraft` separates *deciding what to run* from *running it*. Commands are
+`subprocess-toolkit` separates *deciding what to run* from *running it*. Commands are
 built as typed argv lists by small dataclasses, execution goes through a
 swappable backend, and every operation supports a dry run — so the same code
 that drives a real cluster in production can be asserted against in a test
@@ -13,9 +13,9 @@ It is stdlib-only. There are no runtime dependencies.
 ## Install
 
 ```bash
-uv add shellcraft
+uv add subprocess-toolkit
 # or
-pip install shellcraft
+pip install subprocess-toolkit
 ```
 
 ## Concepts
@@ -32,7 +32,7 @@ Three pieces, and they compose:
 ## Quick start
 
 ```python
-from shellcraft import CommandRunner, ContainerRuntimeOps, KubectlOps
+from subprocess_toolkit import CommandRunner, ContainerRuntimeOps, KubectlOps
 
 runner = CommandRunner()  # SubprocessShell by default
 docker = ContainerRuntimeOps(runner, runtime="podman")
@@ -70,7 +70,7 @@ print(result.dry_run)  # True
 `RecordingShell` captures the exact argv a caller produced:
 
 ```python
-from shellcraft import CommandRunner, KubectlOps, RecordingShell
+from subprocess_toolkit import CommandRunner, KubectlOps, RecordingShell
 
 shell = RecordingShell()
 kubectl = KubectlOps(CommandRunner(shell=shell), namespace="prod")
@@ -92,7 +92,7 @@ produced. Both pipes are drained on their own threads, so a child that writes
 heavily to stderr cannot deadlock against a full stdout buffer:
 
 ```python
-from shellcraft import CommandRunner, SubprocessShell
+from subprocess_toolkit import CommandRunner, SubprocessShell
 
 shell = SubprocessShell(output_listener=lambda stream, line: print(stream, line))
 CommandRunner(shell=shell).run(["make", "all"])
@@ -104,7 +104,7 @@ CommandRunner(shell=shell).run(["make", "all"])
 not taken" step, checking IPv4 and, where the host supports it, IPv6:
 
 ```python
-from shellcraft import pick_local_port
+from subprocess_toolkit import pick_local_port
 
 port = pick_local_port(preferred=8080, blocked={9090})
 ```

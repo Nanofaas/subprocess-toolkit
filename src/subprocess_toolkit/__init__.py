@@ -4,7 +4,7 @@ Public API. Everything exported here is stable; the submodules behind it are
 implementation detail.
 """
 
-from shellcraft.backend import (
+from subprocess_toolkit.backend import (
     OutputListener,
     RecordingShell,
     ScriptedShell,
@@ -12,9 +12,9 @@ from shellcraft.backend import (
     ShellExecutionResult,
     SubprocessShell,
 )
-from shellcraft.fileutil import read_json_field, wrap_payload, write_json_file
-from shellcraft.net import is_port_free, pick_local_port
-from shellcraft.runners import (
+from subprocess_toolkit.fileutil import read_json_field, wrap_payload, write_json_file
+from subprocess_toolkit.net import is_port_free, pick_local_port
+from subprocess_toolkit.runners import (
     CommandRunner,
     ContainerRuntimeOps,
     KubectlOps,

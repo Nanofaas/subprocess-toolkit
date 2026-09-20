@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from shellcraft.backend import (
+from subprocess_toolkit.backend import (
     RecordingShell,
     ScriptedShell,
     ShellExecutionResult,

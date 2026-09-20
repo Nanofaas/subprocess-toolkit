@@ -1,6 +1,6 @@
 # Dependency updates.
 #
-# The runtime dependency list is empty by design - shellcraft is stdlib-only and
+# The runtime dependency list is empty by design - subprocess-toolkit is stdlib-only and
 # exists to wrap tools that are already installed - but the dev toolchain
 # (ruff, mypy, bandit, pre-commit) and the CI actions still need to move.
 version: 2

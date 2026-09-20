@@ -1,4 +1,4 @@
-# Pre-commit hooks for shellcraft.
+# Pre-commit hooks for subprocess-toolkit.
 #
 #   uv run pre-commit install          # enable on commit
 #   uv run pre-commit run --all-files  # run everything once
@@ -33,7 +33,7 @@ repos:
   # Type checking
   #
   # Runs through the project environment rather than a pre-commit mirror:
-  # basedpyright has to resolve `shellcraft` itself, and the settings in
+  # basedpyright has to resolve `subprocess_toolkit` itself, and the settings in
   # [tool.basedpyright] (include list, typeCheckingMode, venvPath) are what
   # make the pass meaningful.
   # ---------------------------------------------------------------------------
