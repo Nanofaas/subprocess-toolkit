@@ -49,7 +49,7 @@ dev = [
     # Pinned exactly to match the ruff-pre-commit revision in
     # .pre-commit-config.yaml. A newer ruff in either place makes the hook and a
     # local `ruff check` disagree about what a violation is. Bump both together.
-    "ruff==0.16.7",
+    "ruff==0.16.8",
     # basedpyright rather than mypy: it is the type checker the sibling
     # projects use, and the goal is one stack across all of them.
     "basedpyright>=1.40.1",
