@@ -11,7 +11,7 @@ dependencies = []
 [build-system]
 # >=77 is required for the PEP 639 `license` / `license-files` fields above;
 # older setuptools rejects the SPDX string form.
-requires = ["setuptools>=77"]
+requires = ["setuptools>=84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
