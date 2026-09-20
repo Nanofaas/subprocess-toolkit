@@ -1,4 +1,4 @@
-"""Stdlib-only JSON and file utilities for shellcraft orchestration scripts."""
+"""Stdlib-only JSON and file utilities for subprocess-toolkit orchestration scripts."""
 
 from __future__ import annotations
 

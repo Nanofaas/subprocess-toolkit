@@ -1,12 +1,34 @@
 [project]
-name = "shellcraft"
-version = "0.1.0"
+name = "subprocess-toolkit"
+version = "0.6.0"
 description = "Generic subprocess orchestration toolkit for Python DevOps tooling"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
+authors = [
+    { name = "miciav", email = "5889596+miciav@users.noreply.github.com" }
+]
+keywords = ["subprocess", "orchestration", "devops", "containers", "stdlib"]
+# The three Python versions are the ones CI's matrix actually runs, not a wish.
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
+]
 dependencies = []
+
+# PyPI shows a package page with no link home at all without these.
+[project.urls]
+Homepage = "https://github.com/Nanofaas/subprocess-toolkit"
+Repository = "https://github.com/Nanofaas/subprocess-toolkit"
+Issues = "https://github.com/Nanofaas/subprocess-toolkit/issues"
 
 [build-system]
 # >=77 is required for the PEP 639 `license` / `license-files` fields above;
@@ -44,13 +66,13 @@ dev = [
 #
 # This project has no legacy to carry, so the rule set here is strict. The
 # library is a thin, typed wrapper around subprocess and container/kubectl
-# invocations with a deliberately curated public API (see shellcraft.__all__),
+# invocations with a deliberately curated public API (see subprocess_toolkit.__all__),
 # and it is small enough that "strict now" costs less than "ratchet later".
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-extend-exclude = ["src/shellcraft.egg-info"]
+extend-exclude = ["src/subprocess_toolkit.egg-info"]
 
 [tool.ruff.lint]
 select = [
@@ -87,7 +109,7 @@ ignore = [
 "tests/**" = ["D100", "D101", "D102", "D103", "D104", "D105", "D107"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["shellcraft"]
+known-first-party = ["subprocess_toolkit"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -107,12 +129,12 @@ line-ending = "lf"
 # several dependencies ship without stubs.
 
 [tool.basedpyright]
-include = ["src/shellcraft", "tests"]
+include = ["src/subprocess_toolkit", "tests"]
 typeCheckingMode = "standard"
 # reportImplicitOverride is deliberately NOT enabled here, although some sibling
 # projects enable it. It requires marking overrides with @override, and
 # typing.override only exists from Python 3.12 - on 3.11 that means importing
-# typing_extensions at runtime. shellcraft's selling point is being stdlib-only
+# typing_extensions at runtime. This library's selling point is being stdlib-only
 # with zero runtime dependencies, which is not worth trading for a lint rule.
 # Enable it if the floor ever moves to 3.12.
 reportMissingTypeStubs = false
@@ -137,7 +159,7 @@ python_functions = "test_*"
 
 [tool.coverage.run]
 branch = true
-source = ["shellcraft"]
+source = ["subprocess_toolkit"]
 
 [tool.coverage.report]
 show_missing = true

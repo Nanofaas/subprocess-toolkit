@@ -6,13 +6,13 @@ from pathlib import Path
 
 import pytest
 
-from shellcraft.backend import (
+from subprocess_toolkit.backend import (
     RecordingShell,
     ShellBackend,
     ShellExecutionResult,
 )
-from shellcraft.fileutil import read_json_field, wrap_payload, write_json_file
-from shellcraft.runners import (
+from subprocess_toolkit.fileutil import read_json_field, wrap_payload, write_json_file
+from subprocess_toolkit.runners import (
     CommandRunner,
     ContainerRuntimeOps,
     KubectlOps,
